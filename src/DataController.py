@@ -256,6 +256,7 @@ class DataController:
     Returns:
         None
     '''
+    from numpy import iscomplex
     if self.rank == 0:
       from os.path import join
 
@@ -269,6 +270,11 @@ class DataController:
         with open(join(attr['opath'],fname+'_imag_'+str(ispin)+'.dat'), 'w') as f:
           for ik in range(nkpi):
             f.write(' '.join(['%6d'%ik]+['% 14.8f'%j.imag for j in bands[ik,:,ispin]])+'\n')
+      if iscomplex(bands[:,:,:]).any():
+        for ispin in range(nspin):
+          with open(join(attr['opath'],fname+'_imag_'+str(ispin)+'.dat'), 'w') as f:
+            for ik in range(nkpi):
+             f.write(' '.join(['%6d'%ik]+['% 14.8f'%j.imag for j in bands[ik,:,ispin]])+'\n')
     self.comm.Barrier()
 
 

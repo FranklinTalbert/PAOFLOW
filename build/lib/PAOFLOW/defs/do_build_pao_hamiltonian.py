@@ -23,7 +23,7 @@ comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
 
 ### Reformat
-def build_Hks ( data_controller ,scissor = 0.0):
+def build_Hks ( data_controller ):
   from scipy import linalg as spl
 
   arrays,attributes = data_controller.data_dicts()
@@ -36,17 +36,7 @@ def build_Hks ( data_controller ,scissor = 0.0):
   shift_type = attributes['shift_type']
 
   U = arrays['U'] 
-  #scissor = float(input('Please enter scissor value:'))
   my_eigsmat = arrays['my_eigsmat']
-  for iE in range(my_eigsmat.shape[0]):
-    for ik in range(nkpnts):
-      for ispin in range(nspin):
-        if my_eigsmat[iE,ik,ispin] > 0:
-          my_eigsmat[iE,ik,ispin] += scissor
-
-  #print(my_eigsmat)
-  # if scissor != 0.0:
-  #   my_eigsmat = [eigs + scissor if eigs > 0.0 else eigs for eigs in my_eigsmat]
 
   Hksaux = np.zeros((nawf,nawf,nkpnts,nspin), dtype=complex)
   Hks = np.zeros((nawf,nawf,nkpnts,nspin), dtype=complex)
@@ -57,7 +47,6 @@ def build_Hks ( data_controller ,scissor = 0.0):
 
       #Building the Hamiltonian matrix
       E = np.diag(my_eigs)
-      #print(E)
       UU = np.transpose(U[:,:,ik,ispin]) #transpose of U. Now the columns of UU are the eigenvector of length nawf
       norms = 1./np.sqrt(np.real(np.sum(np.conj(UU)*UU,axis=0)))
       UU[:,:nawf] = UU[:,:nawf]*norms[:nawf]

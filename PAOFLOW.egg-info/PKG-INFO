@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: PAOFLOW
-Version: 2.0.18
+Version: 2.0.24
 Summary: Utility to construct and operate on Hamiltonians from the Projections of DFT wfc on Atomic Orbital bases (PAO)
 Home-page: https://github.com/marcobn/PAOFLOW
 Author: Marco Buongiorno Nardelli

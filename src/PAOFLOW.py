@@ -1579,4 +1579,20 @@ mo    '''
         raise e
 
     self.report_module_time('Berry phase')
+  
+
+  def ballistic_conductance():
+    '''
+    Calculates transmission coefficiencts for electrons travelling through nanowires.
+
+    Arguments:
+
+    Returns:
+    '''
+
+    from .defs.do_ballistic_conductance import do_ballistic_conductance
+    
+    
+
+
 

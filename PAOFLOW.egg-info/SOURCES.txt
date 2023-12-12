@@ -22,6 +22,7 @@ src/defs/do_Efermi.py
 src/defs/do_Hall.py
 src/defs/do_adaptive_smearing.py
 src/defs/do_atwfc_proj.py
+src/defs/do_ballistic_conductance.py
 src/defs/do_band_curvature.py
 src/defs/do_bands.py
 src/defs/do_berry_phase.py

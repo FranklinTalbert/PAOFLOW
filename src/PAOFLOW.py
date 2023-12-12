@@ -21,6 +21,9 @@ import numpy as np
 class PAOFLOW:
 
   data_controller = None
+  left_data_controller = None
+  scatter_data_controller = None
+  right_data_controller = None
 
   comm = rank = size = None
 
@@ -313,6 +316,7 @@ class PAOFLOW:
 
     arry,attr = self.data_controller.data_dicts()
     fpath = attr['fpath']
+    print('fpath is ',fpath)
     if exists(join(fpath,'atomic_proj.xml')):
       from .defs.read_QE_xml import parse_qe_atomic_proj
       parse_qe_atomic_proj(self.data_controller, join(fpath,'atomic_proj.xml'))
@@ -346,6 +350,7 @@ class PAOFLOW:
     from .defs.do_projectability import do_projectability
 
     attr = self.data_controller.data_attributes
+    print('in paoflow projectibility',attr['fpath'],'  ', attr['nkpnts'])
 
     if 'pthr' not in attr: attr['pthr'] = pthr
     if 'shift' not in attr: attr['shift'] = shift
@@ -1581,9 +1586,10 @@ mo    '''
     self.report_module_time('Berry phase')
   
 
-  def ballistic_conductance():
+  def ballistic_conductance( self, workpath='./', outputdir='output', inputfile=None, savedir={'left': None, 'scatter': None, 'right': None}, model=None, npool=1, smearing='gauss', acbn0=False, verbose=False, restart=False, ibrav_num = None):
     '''
-    Calculates transmission coefficiencts for electrons travelling through nanowires.
+    Calculates transmission coefficiencts for electrons travelling through nanowires. Requires complex band structure in
+    the z direction and partial derivative of bands with respect to z.
 
     Arguments:
 
@@ -1591,7 +1597,43 @@ mo    '''
     '''
 
     from .defs.do_ballistic_conductance import do_ballistic_conductance
+    from .DataController import DataController
+    import copy as copy
+    #Set up data controller for each section of the wire
+    self.left_data_controller = DataController(workpath, 'left_output', inputfile, model, savedir['left'], npool, smearing, acbn0, verbose, restart)
+    self.scatter_data_controller = DataController(workpath, 'scatter_output',inputfile, model, savedir['scatter'], npool, smearing, acbn0, verbose, restart)
+    if savedir['right'] != 'identical':
+      self.right_data_controller = DataController(workpath, outputdir, inputfile, model, savedir['right'], npool, smearing, acbn0, verbose, restart)
+
     
+    path = 'I-G-X-XI'
+    special_points = {'G':[0.0, 0.0, 0.0],'X':[0.0, 0.0, 0.5],'XI':[0.0j, 0.0j, 0.5+0.5j],'I':[0.0j, 0.0j, 0.5j]}
+    
+    def populate_data_controllers( controller ):
+      reset_controller = copy.copy(self.data_controller)
+      self.data_controller = copy.copy(controller)
+      
+      self.read_atomic_proj_QE()
+      self.projectability(pthr=0.9)
+      self.pao_hamiltonian()
+      self.bands( ibrav=ibrav_num,nk=1000,band_path=path,high_sym_points=special_points)
+
+      controller = copy.copy(self.data_controller)
+      self.data_controller = copy.copy(reset_controller)
+
+    
+    populate_data_controllers(self.left_data_controller)
+    populate_data_controllers(self.scatter_data_controller)
+    if savedir['right'] != 'identical':
+      populate_data_controllers(self.right_data_controller)
+    #populate_data_controllers( 'scatter')
+    #if savedir['right'] != 'identical':
+    #  populate_data_controllers(self, self.right_data_controller)
+    
+    do_ballistic_conductance(self.left_data_controller, self.scatter_data_controller,self.right_data_controller)
+  
+    
+  
     
 
 

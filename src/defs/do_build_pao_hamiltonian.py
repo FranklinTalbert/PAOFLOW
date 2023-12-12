@@ -23,7 +23,7 @@ comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
 
 ### Reformat
-def build_Hks ( data_controller ,scissor = 0.0):
+def build_Hks ( data_controller , scissor = 0.0):
   from scipy import linalg as spl
 
   arrays,attributes = data_controller.data_dicts()

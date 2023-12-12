@@ -39,7 +39,7 @@ def do_projectability ( data_controller ):
   arry,attr = data_controller.data_dicts()
 
   pthr,shift = attr['pthr'],attr['shift']
-
+  print('ik do fpath is ', attr['fpath'])
   if rank != 0:
     attr['shift'] = None
   else:
